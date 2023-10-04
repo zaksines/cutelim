@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@types/node": "^20.8.2"
+  }, 
+
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  }
+}
