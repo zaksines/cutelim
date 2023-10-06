@@ -1,10 +1,10 @@
-import {Prop, Sequent} from "./ast.js"
+import {Prop, Sequent} from "../build/ast.js"
 
 interface Proof {
     proofType: string; 
     conclusion: Sequent, 
     premises: Proof[], 
-    toString() : void; 
+    toString() : string; 
 }
 
 class Ax implements Proof {

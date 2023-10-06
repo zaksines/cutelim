@@ -1,6 +1,6 @@
 // import from ast
-import {Prop} from '../ast.js'; 
-import {Ax, WeakenL, WeakenR, makeCut} from '../proofs.js';  
+import {Prop} from '../build/ast.js'; 
+import {Ax, WeakenL, WeakenR, makeCut} from '../build/proofs.js';  
 
 
 let begin = '\\( \\begin{prooftree} '; 
@@ -27,4 +27,3 @@ function makeWeakenR(p, a) {
     }
     return new WeakenR(p, vars.get(a)); 
 }
-
