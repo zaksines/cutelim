@@ -1,16 +1,41 @@
-type Prop = string | Negation | Tensor | Par 
+type propType = "var" | "negation" | "and" | "or"
 
-class Negation {
-    constructor(public readonly arg: Prop) {}
+class Prop {
+    constructor(readonly typ: propType, readonly val? : string, readonly left? : Prop,
+        readonly right? : Prop) {} 
+
+    toString() {
+        switch (this.typ) {
+            case "var": {
+                return this.val; 
+            }
+            case "negation": {
+                return "todo"; 
+            }
+            default: {
+                return "todo"; 
+            }
+        }
+    }
 }
 
-class Tensor {
-    constructor(public readonly left: Prop, public readonly right: Prop) {} 
+function equals(p1 : Prop, p2: Prop) {
+    if (p1.typ != p2.typ) {
+        return false; 
+    }
+    switch (p1.typ) {
+        case "var": {
+            return p1.typ == p2.typ; 
+        }
+        case "negation": {
+            return equals(p1.left, p2.left); 
+        }
+        default: {
+            return equals(p1.left, p2.left) && equals(p1.right, p2.right); 
+        }
+    }
 }
 
-class Par {
-    constructor(public readonly left: Prop, public readonly right: Prop) {}
-}
 
 class Sequent {
     public readonly left : Set<Prop>;
@@ -22,36 +47,35 @@ class Sequent {
     }
 
     toString() {
-        return [...this.left].join(', ') + ' \\vdash ' + [...this.right].join(', '); 
-    }
-}
-
-interface Proof {
-    conclusion: Sequent, 
-    premise: Proof | null
-
-    toString() : void; 
-}
-
-let begin = '\\( \\begin{prooftree} '; 
-let end = ' \\end{prooftree} \\)';
-
-class Ax implements Proof {
-    conclusion: Sequent; 
-    premise = null; 
-    toString() {
-        return begin + `\\AxiomC{} \\UnaryInfC{\\( ${this.conclusion.toString()} \\)}` + end; 
+        let arr = []; 
+        [...this.left].map((x) => {
+            arr.push(x.toString()); 
+        }); 
+        let s = arr.join(', '); 
+        s += ' \\vdash '; 
+        arr = []; 
+        [...this.right].map((x) => {
+            arr.push(x.toString()); 
+        }); 
+        return s + arr.join(', '); 
     }
 
-    constructor(a : string) {
-        let s = new Sequent(); 
-        s.left.add(a);
-        s.right.add(a);
-        this.conclusion = s; 
+    sequentCopy(seq2 : Sequent, 
+        exc1 : Prop[], exc2 : Prop[]) {
+            for (const x of seq2.left.values()) {
+                if (!exc1.includes(x)) {
+                    this.left.add(x); 
+                }
+            }
+            for (const x of seq2.right.values()) {
+                if (!exc2.includes(x)) {
+                    this.right.add(x); 
+                }
+            }
+        }
     }
-}
 
-export {Prop, Negation, Tensor, Par}; 
-export {Sequent, Proof, Ax}; 
+
+export {Prop, Sequent}; 
 
 
