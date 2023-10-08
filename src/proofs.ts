@@ -1,4 +1,4 @@
-import {Prop, Sequent} from "../build/ast.js"
+import {Prop, Sequent} from "./ast.js"
 
 interface Proof {
     proofType: string; 
@@ -96,4 +96,49 @@ function makeCut(p1 : Proof, p2 : Proof, bridge : Prop): Cut | Invalid {
     return new Cut(p1, p2, bridge); 
 }
 
-export{Proof, Ax, WeakenL, WeakenR, makeCut}; 
+class AndIntroL1 implements Proof {
+    proofType = "andIntroL1"; 
+    conclusion : Sequent; 
+    premises: Proof[]; 
+
+    toString() {
+        let s = ""; 
+        for (const p of this.premises) {
+            s += p.toString(); 
+        }
+        s += `\\UnaryInfC{\\( ${this.conclusion.toString()} \\)}`;
+        return s;
+    }
+
+    constructor(p1 : Proof, l : Prop, r : Prop) {
+        this.premises = [p1]; 
+        this.conclusion = new Sequent(); 
+        this.conclusion.sequentCopy(p1.conclusion, [l], []); 
+        this.conclusion.left.add(new Prop("and", null, l, r)); 
+    }
+}
+
+class AndIntroL2 implements Proof {
+    proofType = "andIntroL2"; 
+    conclusion : Sequent; 
+    premises: Proof[]; 
+
+    toString() {
+        let s = ""; 
+        for (const p of this.premises) {
+            s += p.toString(); 
+        }
+        s += `\\UnaryInfC{\\( ${this.conclusion.toString()} \\)}`;
+        return s;
+    }
+
+    constructor(p1 : Proof, l : Prop, r : Prop) {
+        this.premises = [p1]; 
+        this.conclusion = new Sequent(); 
+        this.conclusion.sequentCopy(p1.conclusion, [r], []); 
+        this.conclusion.left.add(new Prop("and", null, l, r)); 
+    }
+}
+
+export{Proof, Ax, WeakenL, WeakenR, Cut, makeCut, Invalid,
+     AndIntroL1, AndIntroL2}; 

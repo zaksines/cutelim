@@ -10,10 +10,13 @@ class Prop {
                 return this.val; 
             }
             case "negation": {
-                return "todo"; 
+                return '\\neg ' + this.left.toString(); 
             }
-            default: {
-                return "todo"; 
+            case "and": {
+                return this.left.toString() + ' \\land ' + this.right.toString(); 
+            }
+            case "or": {
+                return this.left.toString() + ' \\lor ' + this.right.toString(); 
             }
         }
     }
