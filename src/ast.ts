@@ -10,33 +10,33 @@ class Prop {
                 return this.val; 
             }
             case "negation": {
-                return '\\neg ' + this.left.toString(); 
+                return ' \\neg (' + this.left.toString() + ') '; 
             }
             case "and": {
-                return this.left.toString() + ' \\land ' + this.right.toString(); 
+                return ' (' + this.left.toString() + ' \\land ' + this.right.toString() + ') '; 
             }
             case "or": {
-                return this.left.toString() + ' \\lor ' + this.right.toString(); 
+                return ' (' + this.left.toString() + ' \\lor ' + this.right.toString() + ') ' ; 
             }
         }
     }
 }
 
-function equals(p1 : Prop, p2: Prop) {
-    if (p1.typ != p2.typ) {
+function setEquals<T>(s1 : Set<T>, s2 : Set<T>, exc : T[]) {
+    if (s1.size != s2.size) {
         return false; 
     }
-    switch (p1.typ) {
-        case "var": {
-            return p1.typ == p2.typ; 
-        }
-        case "negation": {
-            return equals(p1.left, p2.left); 
-        }
-        default: {
-            return equals(p1.left, p2.left) && equals(p1.right, p2.right); 
+    for (const x of s2.values()) {
+        if (!s1.has(x) && !exc.includes(x)) {
+            return false; 
         }
     }
+    for (const x of s1.values()) {
+        if (!s2.has(x) && !exc.includes(x)) {
+            return false; 
+        }
+    }
+    return true; 
 }
 
 
@@ -61,6 +61,11 @@ class Sequent {
             arr.push(x.toString()); 
         }); 
         return s + arr.join(', '); 
+    }
+
+    sequentEqual(seq2 : Sequent, exc : Prop[]) {
+        return setEquals(this.left, seq2.left, exc) &&
+        setEquals(this.right, seq2.right, exc); 
     }
 
     sequentCopy(seq2 : Sequent, 
