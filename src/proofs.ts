@@ -279,5 +279,7 @@ class AndIntroR implements Proof {
     }
 }
 
+
+
 export {Proof, Ax, WeakenL, WeakenR, Cut, makeCut, Invalid, isInvalid, isProof,
      AndIntroL1, AndIntroL2, AndIntroR, isL1, isL2}; 

@@ -1,6 +1,7 @@
 import {strict as assert} from 'assert'; 
 import {Prop} from '../src/ast.js'; 
-import {Proof, Invalid, isInvalid, isProof, isL1} from '../src/proofs.js'; 
+import {Proof, Invalid, isInvalid, isProof, isL1, makeCut} from '../src/proofs.js'; 
+import {AndRCutAndL, AxCutL, AxCutR} from '../src/cutelim.js'; 
 import {makeVarIntro} from '../src/display.js'; 
 
 describe('makeVarIntro', function() {
@@ -78,8 +79,36 @@ describe('makeVarIntro', function() {
         let andand = makeVarIntro('andIntroL1', and.and.toString(), vars, and, 'C'); 
         assert.ok(isProof(andand)); 
         assert.equal(andand.getSize(), 4); 
+    }); 
+});
 
+describe('AxCutL', function() {
+    let vars = new Map<string, Prop>(); 
+    let A = makeVarIntro('ax', 'A', vars);  
+
+    it('Trivial cut, Ax with Cut', function() {
+        assert.ok(isProof(A)); 
+        let C = makeCut(A, A, vars.get('A')); 
+        assert.ok(isProof(C)); 
+        let c1 = AxCutL(C); 
+        assert.ok(isProof(c1));
+        assert.ok(c1.numCuts() < C.numCuts()); 
+        c1 = AxCutR(C); 
+        assert.ok(isProof(c1));
+        assert.ok(c1.numCuts() < C.numCuts()); 
     }); 
 
-
-});
+    it('Ax Cut with weakening proof', function() {
+        let wl = makeVarIntro('weakenR', 'B', vars, A); 
+        let and = makeVarIntro('andIntroL1', 'A', vars, wl, 'B'); 
+        assert.ok(isProof(and)); 
+        assert.ok(isProof(A)); 
+        let C = makeCut(and, A, vars.get('A')); 
+        assert.ok(isProof(C)); 
+        let c1 = AxCutR(C); 
+        assert.ok(isProof(c1)); 
+        assert.ok(c1.numCuts() < C.numCuts()); 
+        c1 = AxCutL(C); 
+        assert.ok(isInvalid(c1)); 
+    }); 
+}); 

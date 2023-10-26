@@ -1,12 +1,18 @@
 import {Ax, Cut, makeCut, Proof, Invalid, isL1, isL2} from './proofs.js';
 
 // Left premise is Ax. 
-function AxCutL(c : Cut) : Proof {
+function AxCutL(c : Cut) : Proof | Invalid {
+    if (c.premises[0].proofType != 'ax') {
+        return 'invalid'; 
+    }
     return c.premises[1]; 
 }
 
 // Right premise is Ax. 
-function AxCutR(c : Cut) : Proof {
+function AxCutR(c : Cut) : Proof | Invalid {
+    if (c.premises[1].proofType != 'ax') {
+        return 'invalid'; 
+    }
     return c.premises[0]; 
 }
 
@@ -29,4 +35,4 @@ function AndRCutAndL(c : Cut) : Cut | Invalid {
 
 
 
-export {AndRCutAndL}; 
+export {AxCutL, AxCutR, AndRCutAndL}; 

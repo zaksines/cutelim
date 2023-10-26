@@ -75,38 +75,14 @@ function makeAndIntroR(leftPremise : Proof, rightPremise : Proof,
         return new AndIntroR(leftPremise, rightPremise, vars.get(and.toString())); 
     }
 
-function send(p : Proof | Invalid) {
+/* function send(p : Proof | Invalid) {
     const para = document.body.appendChild(document.createElement('p'));  
     if (p == "invalid") {
         para.textContent = 'invalid' + '\n'; 
         return; 
     }
     para.textContent = begin + p.toString() + end + '\n'; 
-}
-
-/* let A = makeVarIntro('ax', 'A', vars);
-let B = makeVarIntro('ax', 'B', vars); 
-let ABwA = makeVarIntro('weakenL', 'B', vars, A as Proof);
-let ABwB = makeVarIntro('weakenL', 'A', vars, B as Proof);
-let andR = makeAndIntroR(ABwA as Proof, ABwB as Proof, vars.get('A'), vars.get('B'), vars); 
-send(andR as Proof);
-
-let andL = makeVarIntro('andIntroL1', 'A', vars, A as Proof, 'B'); 
-send(andL as Proof); 
-
-let c = makeCut(andR as Proof, andL as Proof, (andR as AndIntroR).and);
-console.log((andR as AndIntroR).and);
-send(c); 
-
-if (!isInvalid(c)) {
-    send(AndRCutAndL(c)); 
 } */
-
-let A = makeVarIntro('ax', 'A', vars); 
-let wl = makeVarIntro('weakenR', 'B', vars, A); 
-let and = makeVarIntro('andIntroL1', 'A', vars, wl, 'B'); 
-let andand = makeVarIntro('andIntroL1', (and as AndIntroL1).and.toString(), vars, and, 'C'); 
-send(andand);
 
 export {makeVarIntro}; 
 
