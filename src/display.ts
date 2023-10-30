@@ -1,8 +1,8 @@
 // import from ast
 import {Prop} from './ast.js'; 
 import {Proof, Ax, WeakenL, WeakenR, isInvalid, makeCut, 
-    Invalid, AndIntroL1, AndIntroL2, AndIntroR} from './proofs.js';  
-import {AndRCutAndL} from './cutelim.js'; 
+    Invalid, AndIntroL1, AndIntroL2, AndIntroR, Cut, makeNegR, makeNegL, NegR, NegL} from './proofs.js';  
+import {AndRCutAndL, NegRCutNegL} from './cutelim.js'; 
 
 let begin = '\\( \\begin{prooftree} '; 
 let end = ' \\end{prooftree} \\)';
@@ -75,16 +75,34 @@ function makeAndIntroR(leftPremise : Proof, rightPremise : Proof,
         return new AndIntroR(leftPremise, rightPremise, vars.get(and.toString())); 
     }
 
-/* function send(p : Proof | Invalid) {
+function send(p : Proof | Invalid) {
     const para = document.body.appendChild(document.createElement('p'));  
     if (p == "invalid") {
         para.textContent = 'invalid' + '\n'; 
         return; 
     }
     para.textContent = begin + p.toString() + end + '\n'; 
-} */
+} 
 
-export {makeVarIntro}; 
+
+/* let A = makeVarIntro('ax', 'A', vars);
+    let B = makeVarIntro('ax', 'B', vars);
+
+    let wl = makeVarIntro('weakenL', 'B', vars, A); 
+    let ww = makeNegR(wl as Proof, vars.get('B'), vars); 
+    let wr = makeVarIntro('weakenR', 'B', vars, A); 
+    send(ww);
+    let zz = makeNegL(wr as Proof, vars.get('B'), vars); 
+    send(zz);
+    let c = makeCut(ww as Proof, zz as Proof, (zz as NegL).neg);
+    send(c); 
+
+    send(NegRCutNegL(c as Cut)); */ 
+
+    
+
+
+export {makeVarIntro, makeAndIntroR}; 
 
 
 

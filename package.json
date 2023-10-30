@@ -1,11 +1,6 @@
 {
-  "type": "module", 
+  "type": "module",
   "devDependencies": {
-    "@types/mocha": "^10.0.2",
-    "@types/node": "^20.8.6",
-    "mocha": "^10.2.0"
-  },
-  "scripts": {
-    "test": "mocha ./build/test/test.js"
+    "@types/node": "^20.8.6"
   }
 }

@@ -5,8 +5,6 @@ interface Proof {
     conclusion: Sequent, 
     premises: Proof[], 
     toString() : string;
-    getSize() : number; 
-    numCuts() : number; 
 }
 
 class Ax implements Proof {
@@ -23,14 +21,6 @@ class Ax implements Proof {
         s.left.add(a);
         s.right.add(a);
         this.conclusion = s; 
-    }
-
-    getSize() {
-        return 1; 
-    }
-
-    numCuts() {
-        return 0; 
     }
 }
 
@@ -56,17 +46,7 @@ class WeakenL implements Proof {
         this.conclusion = new Sequent(); 
         this.conclusion.sequentCopy(p.conclusion, [], []); 
         this.conclusion.left.add(a); 
-        this.size = 1 + this.premises[0].getSize(); 
-        this.cuts = this.premises[0].numCuts(); 
 
-    }
-
-    getSize() {
-        return this.size; 
-    }
-
-    numCuts() {
-        return this.cuts; 
     }
 }
 
@@ -93,17 +73,8 @@ class WeakenR implements Proof {
         this.conclusion = new Sequent(); 
         this.conclusion.sequentCopy(p.conclusion, [], []); 
         this.conclusion.right.add(a); 
-        this.size = 1 + this.premises[0].getSize(); 
-        this.cuts = this.premises[0].numCuts();
     }
 
-    getSize() {
-        return this.size; 
-    }
-
-    numCuts() {
-        return this.cuts; 
-    }
 }
 
 class Cut implements Proof {
@@ -129,16 +100,6 @@ class Cut implements Proof {
         this.conclusion = new Sequent(); 
         this.conclusion.sequentCopy(p1.conclusion, [], [bridge]); 
         this.conclusion.sequentCopy(p2.conclusion, [bridge], []); 
-        this.size = 1 + this.premises[0].getSize() + this.premises[1].getSize(); 
-        this.cuts = 1 + this.premises[0].numCuts() + this.premises[1].numCuts(); 
-    }
-
-    getSize() {
-        return this.size; 
-    }
-
-    numCuts() {
-        return this.cuts; 
     }
 }
 
@@ -182,17 +143,7 @@ class AndIntroL1 implements Proof {
         this.and = and;  
         this.conclusion = new Sequent(); 
         this.conclusion.sequentCopy(p1.conclusion, [and.left], []); 
-        this.conclusion.left.add(and); 
-        this.size = 1 + this.premises[0].getSize();  
-        this.cuts = this.premises[0].numCuts(); 
-    }
-
-    getSize() {
-        return this.size; 
-    }
-
-    numCuts() {
-        return this.cuts; 
+        this.conclusion.left.add(and);  
     }
 }
 
@@ -224,16 +175,6 @@ class AndIntroL2 implements Proof {
         this.conclusion = new Sequent(); 
         this.conclusion.sequentCopy(p1.conclusion, [and.right], []); 
         this.conclusion.left.add(and); 
-        this.size = 1 + this.premises[0].getSize();  
-        this.cuts = this.premises[0].numCuts(); 
-    }
-
-    getSize() {
-        return this.size; 
-    }
-
-    numCuts() {
-        return this.cuts; 
     }
 }
 
@@ -266,20 +207,92 @@ class AndIntroR implements Proof {
         this.conclusion.sequentCopy(p1.conclusion, [], [and.left, and.right]); 
         this.and = and; 
         this.conclusion.right.add(and); 
-        this.size = 1 + this.premises[0].getSize() + 1 + this.premises[1].getSize(); 
-        this.cuts = this.premises[0].numCuts(); 
-    }
-
-    getSize() {
-        return this.size; 
-    }
-
-    numCuts() {
-        return this.cuts; 
     }
 }
 
+class NegR implements Proof {
+    proofType = 'negR'; 
+    conclusion : Sequent; 
+    premises : Proof[]; 
+    size : number; 
+    cuts : number; 
+    neg : Prop; 
 
+    constructor(p : Proof, A : Prop) {
+        this.premises = [p]; 
+        this.neg = A; 
+        this.conclusion = new Sequent(); 
+        this.conclusion.sequentCopy(p.conclusion, [A.left], []); 
+        this.conclusion.right.add(this.neg); 
+    }
+
+    toString() {
+        let s = ''; 
+        for (const p of this.premises) {
+            s += p.toString(); 
+        }
+        s += `\\RightLabel{ \\( \\neg R \\) } 
+        \\UnaryInfC{ \\( ${this.conclusion.toString()} \\) }`
+        return s; 
+    }
+}
+
+function isNegR(p : Proof) : p is NegR {
+    return p.proofType == 'negR'; 
+}
+
+function makeNegR(p : Proof, A : Prop, vars : Map<string, Prop>) : Proof | Invalid {
+    if (!p.conclusion.left.has(A)) {
+        return 'invalid'; 
+    } 
+    let neg = new Prop('negation', null, A); 
+    if (!vars.has(neg.toString())) {
+        vars.set(neg.toString(), neg);
+    }
+    return new NegR(p, vars.get(neg.toString())); 
+}
+
+class NegL implements Proof {
+    proofType = 'negL'; 
+    conclusion : Sequent; 
+    premises : Proof[]; 
+    size : number; 
+    cuts : number; 
+    neg : Prop; 
+
+    constructor(p : Proof, A : Prop) {
+        this.premises = [p]; 
+        this.neg = A; 
+        this.conclusion = new Sequent(); 
+        this.conclusion.sequentCopy(p.conclusion, [], [A.left]); 
+        this.conclusion.left.add(this.neg); 
+    }
+
+    toString() {
+        let s = ''; 
+        for (const p of this.premises) {
+            s += p.toString(); 
+        }
+        s += `\\RightLabel{ \\( \\neg L \\) } 
+        \\UnaryInfC{ \\( ${this.conclusion.toString()} \\) }`
+        return s; 
+    }
+}
+
+function isNegL(p : Proof) : p is NegL {
+    return p.proofType == 'negL'; 
+}
+
+function makeNegL(p : Proof, A : Prop, vars : Map<string, Prop>) : Proof | Invalid {
+    if (!p.conclusion.right.has(A)) {
+        return 'invalid'; 
+    }
+    let neg = new Prop('negation', null, A); 
+    if (!vars.has(neg.toString())) {
+        vars.set(neg.toString(), neg); 
+    }
+    return new NegL(p, vars.get(neg.toString())); 
+}
 
 export {Proof, Ax, WeakenL, WeakenR, Cut, makeCut, Invalid, isInvalid, isProof,
-     AndIntroL1, AndIntroL2, AndIntroR, isL1, isL2}; 
+     AndIntroL1, AndIntroL2, AndIntroR, isL1, isL2, NegR, NegL, isNegL, isNegR, makeNegR, makeNegL}; 
