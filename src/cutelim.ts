@@ -1,5 +1,5 @@
-import {Ax, Cut, makeCut, Proof, Invalid, isL1, isL2, isNegR, isNegL} from './proofs.js';
-
+import {Ax, Cut, makeCut, Proof, Invalid, isL1, isL2, isNegR, isNegL, makeVarIntro} from './proofs';
+import { Prop } from './ast'; 
 // Left premise is Ax. 
 function AxCutL(c : Cut) : Proof | Invalid {
     if (c.premises[0].proofType != 'ax') {
@@ -42,6 +42,37 @@ function NegRCutNegL(c : Cut) : Cut | Invalid {
     }
 }
 
+// When a cut premise is a weaken.
+function WCut(c : Cut, vars : Map<string, Prop>) : Proof | Invalid {
+    if (c.premises[1].proofType != 'weakenL' && c.premises[0].proofType != 'weakenR') {
+        return 'invalid'; 
+    }
+    let p : Proof | 'invalid'; 
+    if (c.premises[1].proofType == 'weakenL') {
+        p = c.premises[0]; 
+        for (const x of c.premises[1].conclusion.left.values()) {
+            if (x != c.bridge) {
+                p = makeVarIntro('weakenL', x.toString(), vars, p); 
+            }
+        }
+        for (const x of c.premises[1].conclusion.right.values()) {
+            p = makeVarIntro('weakenR', x.toString(), vars, p); 
+        }
+    }
+    else if (c.premises[0].proofType == 'weakenR') {
+        p = c.premises[1]; 
+        for (const x of c.premises[0].conclusion.left.values()) {
+            p = makeVarIntro('weakenL', x.toString(), vars, p); 
+        }
+        for (const x of c.premises[0].conclusion.right.values()) {
+            if (x != c.bridge) {
+                p = makeVarIntro('weakenR', x.toString(), vars, p); 
+            }
+        }
+    }
+    return p; 
+}
 
 
-export {AxCutL, AxCutR, AndRCutAndL, NegRCutNegL}; 
+
+export {AxCutL, AxCutR, AndRCutAndL, NegRCutNegL, WCut}; 

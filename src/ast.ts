@@ -1,24 +1,54 @@
-type propType = "var" | "negation" | "and" | "or"
+type propType = "var" | "negation" | "and" | "or" | "Empty" 
 
 class Prop {
     constructor(readonly typ: propType, readonly val? : string, readonly left? : Prop,
         readonly right? : Prop) {} 
 
-    toString() {
+    toString(Prop? : Prop) {
         switch (this.typ) {
             case "var": {
-                return this.val; 
+                let s = this.val; 
+                if (this == Prop) {
+                    s = '\\color{blue} \\underline{' + s + '} \\color{black}'; 
+                }
+                return s; 
             }
             case "negation": {
-                return ' \\neg (' + this.left.toString() + ') '; 
+                let s = '\\neg (' + 
+                (this.left ? this.left.toString(Prop) : '__' + ') '); 
+                if (this == Prop) {
+                    s = '\\color{blue} \\underline{' + s + '} \\color{black}'; 
+                }
+                return s; 
             }
             case "and": {
-                return ' (' + this.left.toString() + ' \\land ' + this.right.toString() + ') '; 
+                let s = ' (' + 
+                (this.left ? this.left.toString(Prop) : 'x') + ' \\land ' + 
+                (this.right ? this.right.toString(Prop) : 'x') + ') '; 
+                if (this == Prop) {
+                    s = '\\color{blue} \\underline{' + s + '} \\color{black}'; 
+                }
+                return s; 
             }
             case "or": {
-                return ' (' + this.left.toString() + ' \\lor ' + this.right.toString() + ') ' ; 
+                let s =  ' (' + 
+                (this.left ? this.left.toString() : '__' + ' \\lor ') + 
+                (this.right ? this.right.toString() : '__' + ') ') ; 
+                if (this == Prop) {
+                    s = '\\color{blue} \\underline{' + s + '} \\color{black}'; 
+                }
             }
         }
+    }
+}
+
+// Used to copy props for React. 
+function propCopy(p : Prop) : Prop {
+    switch (p.typ) {
+        case 'var': return new Prop('var', p.val); 
+        case 'negation': return new Prop('negation', null, propCopy(p.left)); 
+        case 'and': return new Prop('and', null, propCopy(p.left), propCopy(p.right));
+        case 'or': return new Prop('or', null, propCopy(p.left), propCopy(p.right)); 
     }
 }
 
@@ -84,6 +114,6 @@ class Sequent {
     }
 
 
-export {Prop, Sequent}; 
+export {Prop, Sequent, propCopy}; 
 
 

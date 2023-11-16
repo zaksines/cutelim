@@ -1,9 +1,12 @@
 { 
     "compilerOptions": {
+        "jsx": "react-jsx",
         "module": "esnext",
         "target": "esnext",
         "outDir": "./build",
-        "typeRoots": ["node_modules/@types"]
+        "typeRoots": ["./node_modules/**/*"],
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node"
     }, 
     "include": ["src/**/*"]
 }
